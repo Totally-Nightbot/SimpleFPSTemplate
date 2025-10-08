@@ -12,6 +12,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Animation/AnimSequence.h"
 
+#include "Net/UnrealNetwork.h"
+
 
 AFPSCharacter::AFPSCharacter()
 {
@@ -32,6 +34,9 @@ AFPSCharacter::AFPSCharacter()
 	GunMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
 	GunMeshComponent->CastShadow = false;
 	GunMeshComponent->SetupAttachment(Mesh1PComponent, "GripPoint");
+
+	// Sets players current health
+	CurrentHealth = 100;
 }
 
 
@@ -87,7 +92,28 @@ void AFPSCharacter::OnJumped_Implementation()
 
 void AFPSCharacter::Fire()
 {
-	// try and fire a projectile
+	// Calls on the Local Machine's pawn
+
+	Server_Fire();
+
+
+	UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+	
+	// Get the animation object for the arms mesh
+	UAnimInstance* AnimInstance = Mesh1PComponent->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->PlaySlotAnimationAsDynamicMontage(FireAnimation, "Arms", 0.0f);
+	}
+
+	// Play Muzzle FX
+	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GunMeshComponent, "Muzzle");
+}
+
+void AFPSCharacter::Server_Fire_Implementation()
+{
+	//Server RPC -- Runs only on the server
+
 	if (ProjectileClass)
 	{
 		// Grabs location from the mesh that must have a socket called "Muzzle" in his skeleton
@@ -103,19 +129,22 @@ void AFPSCharacter::Fire()
 		// spawn the projectile at the muzzle
 		GetWorld()->SpawnActor<AFPSProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
 	}
-
-	UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	
-	// Get the animation object for the arms mesh
-	UAnimInstance* AnimInstance = Mesh1PComponent->GetAnimInstance();
-	if (AnimInstance)
-	{
-		AnimInstance->PlaySlotAnimationAsDynamicMontage(FireAnimation, "Arms", 0.0f);
-	}
-
-	// Play Muzzle FX
-	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GunMeshComponent, "Muzzle");
 }
+
+//does stuff based on another thing and if returning true, runs the implementation 
+bool AFPSCharacter::Server_Fire_Validate()
+{
+	return true;
+}
+
+// If making multiplayer, need this to keep track of all lifetime replicated props 
+void AFPSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AFPSCharacter, CurrentHealth);
+}
+
 
 void AFPSCharacter::MoveInput(const FInputActionValue& InputValue)
 {

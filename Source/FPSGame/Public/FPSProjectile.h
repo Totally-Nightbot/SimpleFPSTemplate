@@ -38,6 +38,8 @@ protected:
 
 public:
 
+	int damage = 10;
+
 	AFPSProjectile();
 
 	virtual void BeginPlay() override;

@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Animation/AnimSequence.h"
 
+#include "Net/UnrealNetwork.h"
 
 AFPSCharacter::AFPSCharacter()
 {
@@ -32,6 +33,8 @@ AFPSCharacter::AFPSCharacter()
 	GunMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
 	GunMeshComponent->CastShadow = false;
 	GunMeshComponent->SetupAttachment(Mesh1PComponent, "GripPoint");
+
+	CurrentHealth = 100;
 }
 
 
@@ -87,6 +90,28 @@ void AFPSCharacter::OnJumped_Implementation()
 
 void AFPSCharacter::Fire()
 {
+	// Ran on the local machine pawn
+
+	Server_Fire();
+
+	UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+	
+	// Get the animation object for the arms mesh
+	UAnimInstance* AnimInstance = Mesh1PComponent->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->PlaySlotAnimationAsDynamicMontage(FireAnimation, "Arms", 0.0f);
+	}
+
+	// Play Muzzle FX
+	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GunMeshComponent, "Muzzle");
+}
+
+//When putting in the implementation of the RPC you need to add _Implementation into the name in the .cpp function
+void AFPSCharacter::Server_Fire_Implementation()
+{
+	//ServerRPC menaing it will only run on the server
+
 	// try and fire a projectile
 	if (ProjectileClass)
 	{
@@ -104,17 +129,24 @@ void AFPSCharacter::Fire()
 		GetWorld()->SpawnActor<AFPSProjectile>(ProjectileClass, MuzzleLocation, MuzzleRotation, ActorSpawnParams);
 	}
 
-	UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	
-	// Get the animation object for the arms mesh
-	UAnimInstance* AnimInstance = Mesh1PComponent->GetAnimInstance();
-	if (AnimInstance)
-	{
-		AnimInstance->PlaySlotAnimationAsDynamicMontage(FireAnimation, "Arms", 0.0f);
-	}
+}
 
-	// Play Muzzle FX
-	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, GunMeshComponent, "Muzzle");
+//for adding validation you add Validate which returns a bool
+bool AFPSCharacter::Server_Fire_Validate()
+{
+	return true;
+}
+
+// Unreal uses its own containers called Arrays (instead of vectors) 
+//Whenever creating a property that is replicated this function is needed to keep track of all replicated properties
+
+void AFPSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//this needs to be called with the class and the property you are replicating
+	DOREPLIFETIME(AFPSCharacter, CurrentHealth);
+
 }
 
 void AFPSCharacter::MoveInput(const FInputActionValue& InputValue)

@@ -85,10 +85,23 @@ public:
 
 	virtual void OnJumped_Implementation() override;
 
+	// How to set variables in unreal (edit anywehere allows to be edited anywhere, BP ReadWrite allows for the BP to read and write
+	// Replicated means it gets replicated)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	int CurrentHealth;
+
 protected:
 	
 	/** Fires a projectile. */
 	void Fire();
+
+	//Ufunctions and properties are how you talk to the editor to tell it what you want
+
+	//To tell a function to be a serverRPC you define UFunciton and put server
+	UFUNCTION(Server, Reliable, WithValidation)
+
+	//you put server_ before the function you want to be a RPC 
+	void Server_Fire();
 
 	void MoveInput(const FInputActionValue& InputValue);
 

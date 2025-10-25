@@ -6,6 +6,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 
+#include "FPSCharacter.h"
+
 AFPSProjectile::AFPSProjectile() 
 {
 	// Use a sphere as a simple collision representation
@@ -28,6 +30,12 @@ AFPSProjectile::AFPSProjectile()
 	ProjectileMovement->MaxSpeed = 3000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
+
+	//Sets the object to replicate if the object has authority (checks if code is running on server or client) 
+	if (HasAuthority())
+	{
+		bReplicates = true;
+	}
 }
 
 
@@ -78,5 +86,21 @@ void AFPSProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 		}
 
 		Explode();
+	}
+
+	// Effects the character when projectile hits the them
+	if ((OtherActor) && (OtherActor != this) && (OtherComp))
+	{
+
+		// Checks the other actor is a character
+		AFPSCharacter* mcharacter = Cast<AFPSCharacter>(OtherActor);
+		
+		if (mcharacter)
+		{
+			if (GetLocalRole() == ROLE_Authority)
+			{
+				mcharacter->CurrentHealth -= damage;
+			}
+		}
 	}
 }

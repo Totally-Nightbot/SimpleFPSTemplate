@@ -14,6 +14,8 @@ class AFPSGameMode : public AGameModeBase
 public:
 
 	AFPSGameMode();
+
+	void EndGame(APawn* instigatorPawn);
 };
 
 

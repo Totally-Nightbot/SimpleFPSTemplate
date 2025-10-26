@@ -146,7 +146,7 @@ void AFPSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 
 	//this needs to be called with the class and the property you are replicating
 	DOREPLIFETIME(AFPSCharacter, CurrentHealth);
-
+	DOREPLIFETIME(AFPSCharacter, bIsCarringObject);
 }
 
 void AFPSCharacter::MoveInput(const FInputActionValue& InputValue)

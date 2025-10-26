@@ -88,7 +88,11 @@ public:
 	// How to set variables in unreal (edit anywehere allows to be edited anywhere, BP ReadWrite allows for the BP to read and write
 	// Replicated means it gets replicated)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	
 	int CurrentHealth;
+
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Gameplay")
+	bool bIsCarringObject = false;
 
 protected:
 	

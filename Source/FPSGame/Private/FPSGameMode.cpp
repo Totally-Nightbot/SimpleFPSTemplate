@@ -5,6 +5,8 @@
 #include "FPSCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 
+#include "MyGameStateBase.h"
+
 AFPSGameMode::AFPSGameMode()
 {
 	// set default pawn class to our Blueprinted character
@@ -13,4 +15,25 @@ AFPSGameMode::AFPSGameMode()
 
 	// use our custom HUD class
 	HUDClass = AFPSHUD::StaticClass();
+	
+	GameStateClass = AMyGameStateBase::StaticClass();
 }
+
+void AFPSGameMode::EndGame(APawn* instigatorPawn)
+{
+	if (instigatorPawn)
+	{
+		instigatorPawn->DisableInput(nullptr); // Disable the input for the pawn that ends the game
+	}
+
+	AMyGameStateBase* gState = GetGameState<AMyGameStateBase>();
+
+	if (gState) 
+	{
+		gState->MultiCastEndGame(instigatorPawn);
+
+	}
+
+}
+
+

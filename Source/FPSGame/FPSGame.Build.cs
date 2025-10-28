@@ -15,6 +15,8 @@ public class FPSGame : ModuleRules
 			"Engine", 
 			"InputCore",
 			"EnhancedInput",
-		});
+			"OnlineSubsystem",
+            "OnlineSubsystemSteam",
+        });
 	}
 }

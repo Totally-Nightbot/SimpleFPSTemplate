@@ -4,6 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+
+#include "Interfaces/OnlineSessionInterface.h"
+
+#include "OnlineSessionSettings.h"
+
 #include "MyPlayerController.generated.h"
 
 /**

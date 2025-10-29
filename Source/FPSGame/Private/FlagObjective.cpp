@@ -72,6 +72,7 @@ void AFlagObjective::NotifyActorBeginOverlap(AActor* OtherActor) // Add setting 
 		if (mCharacter)
 		{
 			mCharacter->bIsCarringObject = true;
+			this->Destroy();
 		}
 	
 	}

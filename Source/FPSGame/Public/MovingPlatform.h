@@ -4,26 +4,34 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "WinZoneP2.generated.h"
+#include "MovingPlatform.generated.h"
+
+class UBoxComponent;
 
 UCLASS()
-class FPSGAME_API AWinZoneP2 : public AActor
+class FPSGAME_API AMovingPlatform : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AWinZoneP2();
+	AMovingPlatform();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(VisibleAnyWhere, Category = "Components")
-	class UBoxComponent* BoxComponent;
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	class UStaticMeshComponent* MeshComp;
 
-	UFUNCTION()
-	void HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSeep, const FHitResult& SweepResult);
+	//Collider
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UBoxComponent* boxcomp;
+
+	UPROPERTY(EditAnywhere, Category = "movement")
+	float movement;
+
+	FVector StartLocation;
 
 public:	
 	// Called every frame

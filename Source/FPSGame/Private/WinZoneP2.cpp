@@ -2,6 +2,11 @@
 
 
 #include "WinZoneP2.h"
+
+#include "FlagObjectiveP2.h"
+#include "FPSCharacter.h"
+#include "FPSGameMode.h"
+#include "MyPlayerController.h"
 #include "Components/BoxComponent.h"
 
 // Sets default values
@@ -34,6 +39,24 @@ void AWinZoneP2::BeginPlay()
 
 void AWinZoneP2::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSeep, const FHitResult& SweepResult)
 {
+	if (HasAuthority())
+	{
+		AFPSCharacter* mCharacter = Cast<AFPSCharacter>(OtherActor);
+
+		if (mCharacter == nullptr)
+		{
+			return;
+		}
+
+		// Check if the character has the object and that it is the server (the first player controller)
+		if (mCharacter->bIsCarringObject && !mCharacter->isServer)
+		{
+			mCharacter->points++;
+			mCharacter->objectiveFlag2->SetActive(mCharacter);
+			mCharacter->bIsCarringObject = false;
+		}
+
+	}
 }
 
 // Called every frame

@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 #include "FPSProjectile.h"
+#include "MyPlayerController.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -147,6 +148,7 @@ void AFPSCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	//this needs to be called with the class and the property you are replicating
 	DOREPLIFETIME(AFPSCharacter, CurrentHealth);
 	DOREPLIFETIME(AFPSCharacter, bIsCarringObject);
+	DOREPLIFETIME(AFPSCharacter, points);
 }
 
 void AFPSCharacter::MoveInput(const FInputActionValue& InputValue)
@@ -168,4 +170,22 @@ void AFPSCharacter::LookInput(const FInputActionValue& InputValue)
 	
 	AddControllerYawInput(LookValue.X);
 	AddControllerPitchInput(LookValue.Y);
+}
+
+void AFPSCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (HasAuthority())
+	{
+		AMyPlayerController* pController = Cast<AMyPlayerController>(GetController());
+		AMyPlayerController* pFirstController = Cast<AMyPlayerController>(GetWorld()->GetFirstPlayerController());
+
+		if (pFirstController && pController == pFirstController)
+		{
+			isServer = true;
+		}
+
+		startpos = GetActorLocation();
+	}
 }

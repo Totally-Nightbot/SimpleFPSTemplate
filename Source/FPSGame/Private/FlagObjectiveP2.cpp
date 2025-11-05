@@ -1,18 +1,18 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "FlagObjectiveP2.h"
+
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 
 #include "GameFramework/GameState.h"
 #include "FPSCharacter.h"
 
-#include "FlagObjective.h"
-
 // Sets default values
-AFlagObjective::AFlagObjective()
+AFlagObjectiveP2::AFlagObjectiveP2()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
@@ -25,7 +25,7 @@ AFlagObjective::AFlagObjective()
 	SphereColliderComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap); // Sets only the pawn to be able to overlap with it 
 	SphereColliderComp->SetupAttachment(MeshComp); // Attaches this under the Mesh Comp
 
-	if(HasAuthority())
+	if (HasAuthority())
 	{
 		SetReplicates(true);
 		SetReplicateMovement(true);
@@ -33,55 +33,50 @@ AFlagObjective::AFlagObjective()
 }
 
 // Called when the game starts or when spawned
-void AFlagObjective::BeginPlay()
+void AFlagObjectiveP2::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HasAuthority())
-	{
-		StartLocation = GetActorLocation();
-	}
-	
+	StartLocation = GetActorLocation();
 }
 
 // Called every frame
-void AFlagObjective::Tick(float DeltaTime)
+void AFlagObjectiveP2::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	if (HasAuthority())
 	{
 		double ServerTime = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
 
 		FVector NewLocation = StartLocation + FVector(0.0f, 0.0f, 20 * cos(ServerTime * 2.5f));
-	
+
 		SetActorLocation(NewLocation);
 	}
-
 }
 
-void AFlagObjective::NotifyActorBeginOverlap(AActor* OtherActor) // Add setting the object inactive
+void AFlagObjectiveP2::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
-	
+
 	// can use this or HasAuthority()
-	if (GetLocalRole() == ROLE_Authority) 
+	if (GetLocalRole() == ROLE_Authority)
 	{
 		AFPSCharacter* mCharacter = Cast<AFPSCharacter>(OtherActor);
 
 
-		if (mCharacter && mCharacter->isServer)
+		if (mCharacter && !mCharacter->isServer)
 		{
 			mCharacter->bIsCarringObject = true;
-			mCharacter->objectiveFlag1 = this;
+			mCharacter->objectiveFlag2 = this;
 			SetActorEnableCollision(false);
 			SetActorHiddenInGame(true);
 		}
-	
+
 	}
 }
 
-void AFlagObjective::SetActive(AFPSCharacter* mcharacter)
+
+void AFlagObjectiveP2::SetActive(AFPSCharacter* mcharacter)
 {
 	if (mcharacter->bIsCarringObject)
 	{
@@ -89,4 +84,3 @@ void AFlagObjective::SetActive(AFPSCharacter* mcharacter)
 		SetActorHiddenInGame(false);
 	}
 }
-

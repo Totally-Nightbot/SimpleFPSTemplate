@@ -30,23 +30,23 @@ protected:
 	// -- Enhanced Input -- //
 
 	/* Holds collection of currently active and available InputActions */
-	UPROPERTY(EditDefaultsOnly, Category="Input")
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputMappingContext* DefaultInputMapping;
 
-	UPROPERTY(EditDefaultsOnly, Category= "Input")
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* Input_Move;
-	
-	UPROPERTY(EditDefaultsOnly, Category= "Input")
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* Input_Look;
-	
-	UPROPERTY(EditDefaultsOnly, Category= "Input")
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* Input_Jump;
-	
-	UPROPERTY(EditDefaultsOnly, Category= "Input")
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* Input_Fire;
 
 	/** Pawn mesh: 1st person view  */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Mesh")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
 	USkeletalMeshComponent* Mesh1PComponent;
 
 	/** Gun mesh: 1st person view (seen only by self) */
@@ -66,12 +66,14 @@ protected:
 public:
 	AFPSCharacter();
 
+	virtual void BeginPlay() override;
+
 	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category="Projectile")
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
 	TSubclassOf<AFPSProjectile> ProjectileClass;
 
 	/** Sound to play each time we fire */
-	UPROPERTY(EditDefaultsOnly, Category="Gameplay")
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	USoundBase* FireSound;
 
 	/** AnimMontage to play each time we fire */
@@ -90,9 +92,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
 	int CurrentHealth;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated)
+	int points;
+
 	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Gameplay")
 	bool bIsCarringObject = false;
+	bool isServer = false;
 
+	UPROPERTY(Replicated)
+	class AFlagObjective* objectiveFlag1;
+	UPROPERTY(Replicated)
+	class AFlagObjectiveP2* objectiveFlag2;
+
+	UPROPERTY(Replicated)
+	FVector startpos;
 protected:
 	
 	/** Fires a projectile. */

@@ -3,6 +3,7 @@
 
 #include "WinZone.h"
 
+#include "FlagObjective.h"
 #include "Components/BoxComponent.h"
 #include "FPSCharacter.h"
 #include "FPSGameMode.h"
@@ -48,20 +49,13 @@ void AWinZone::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 			return;
 		}
 
-		AMyPlayerController* pController = Cast<AMyPlayerController>(OtherActor);
-
-		if (mCharacter->bIsCarringObject) //Checks to see if the player is the server
+		// Check if the character has the object and that it is the server (the first player controller)
+		if (mCharacter->bIsCarringObject && mCharacter->isServer)
 		{
-			// GetAuthGameMode only exists on the server 
-			AFPSGameMode* gMode = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
-
-			if (gMode) // Send an multicast RPC (Sends a message from the server to the client) 
-			{
-				gMode->EndGame(mCharacter);
-
-			}
+			mCharacter->points++;
+			mCharacter->objectiveFlag1->SetActive(mCharacter);
+			mCharacter->bIsCarringObject = false;
 		}
-
 	}
 
 }

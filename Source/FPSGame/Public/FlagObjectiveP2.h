@@ -4,19 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
-#include "FlagObjective.generated.h"
+#include "FlagObjectiveP2.generated.h"
 
 class AFPSCharacter;
 
 UCLASS()
-class FPSGAME_API AFlagObjective : public AActor
+class FPSGAME_API AFlagObjectiveP2 : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+public:
 	// Sets default values for this actor's properties
-	AFlagObjective();
+	AFlagObjectiveP2();
 
 protected:
 	// Called when the game starts or when spawned
@@ -32,7 +30,7 @@ protected:
 
 	FVector StartLocation;
 
-public:	
+public:
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

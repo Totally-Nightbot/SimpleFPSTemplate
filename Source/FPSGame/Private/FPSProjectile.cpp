@@ -1,6 +1,9 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 
 #include "FPSProjectile.h"
+
+#include "FlagObjective.h"
+#include "FlagObjectiveP2.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -94,12 +97,25 @@ void AFPSProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 
 		// Checks the other actor is a character
 		AFPSCharacter* mcharacter = Cast<AFPSCharacter>(OtherActor);
-		
-		if (mcharacter)
+
+		if (mcharacter && GetLocalRole() == ROLE_Authority)
 		{
-			if (GetLocalRole() == ROLE_Authority)
+			mcharacter->CurrentHealth -= damage;
+
+			if (mcharacter->CurrentHealth <= 0)
 			{
-				mcharacter->CurrentHealth -= damage;
+				if (mcharacter->isServer)
+				{
+					mcharacter->objectiveFlag1->SetActive(mcharacter);
+				}
+				else
+				{
+					mcharacter->objectiveFlag2->SetActive(mcharacter);
+				}
+
+				mcharacter->bIsCarringObject = false;
+				mcharacter->SetActorLocation(mcharacter->startpos);
+				mcharacter->CurrentHealth = 100;
 			}
 		}
 	}
